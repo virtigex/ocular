@@ -28,8 +28,6 @@ else:
         seq.append(int(arg))
     print(f'{prog}: using port sequence {seq}')
 
-#channel = int(sys.argv[1])
-
 print(G.RPI_INFO)
 print(G.VERSION)
 
