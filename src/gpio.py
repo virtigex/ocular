@@ -36,28 +36,30 @@ print(G.VERSION)
 G.setmode(G.BCM)
 G.setwarnings(False)
 
+class GpioArray:
+    def __init__(self, seq, delay):
+        self.sequence = seq
+        self.delay = delay
+        for channel in self.sequence:
+            G.setup(channel, G.OUT, initial=G.HIGH)
+            G.output(channel, G.LOW)
+    
+    def light_show(self):
+        for channel in self.sequence:
+            time.sleep(self.delay)
+            G.output(channel, G.HIGH)
+            time.sleep(self.delay)
+            G.output(channel, G.LOW)
 
-def prepare(sequence):
-    for channel in sequence:
-        G.setup(channel, G.OUT, initial=G.HIGH)
-        G.output(channel, G.LOW)
+    def __del__(self):
+        for channel in self.sequence:
+            G.output(channel, G.LOW)
+            G.cleanup(channel)
 
-def light_show(sequence):
-    for channel in sequence:
-        print(f'channel: {channel}')
-        time.sleep(DELAY)
-        G.output(channel, G.HIGH)
-        time.sleep(DELAY)
-        G.output(channel, G.LOW)
-
-def cleanup(sequence):
-    for channel in sequence:
-        G.cleanup(channel)
+def demo():
+    g = GpioArray(seq, 0.1)
+    for i in range(10):
+        g.light_show()
 
 if __name__ == '__main__':
-    prepare(seq)
-    for i in range(10):
-        light_show(seq)
-    cleanup(seq)
-
-
+    demo()
