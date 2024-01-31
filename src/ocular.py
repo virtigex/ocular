@@ -19,7 +19,8 @@ def display_cam(camid):
     while RUNNING:
         _ret, frame = vid.read()
         title = f'cam {camid}'
-        cv2.imshow(title, frame)
+        if len(frame) > 0 and len(frame[0]) > 0:
+            cv2.imshow(title, frame)
         if (cv2.waitKey(1) & 0xFF) == ord('q'):
             RUNNING = False
     print('cleanup')
