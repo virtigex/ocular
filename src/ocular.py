@@ -1,4 +1,31 @@
-import cv2 
+import asyncio
+import cv2
+import signal
+import sys
+
+RUNNING = True
+
+def signal_handler(sig, frame):
+    global RUNNING
+    print('You pressed Ctrl+C!')
+    RUNNING = False
+
+signal.signal(signal.SIGINT, signal_handler)
+
+def display_cam(camid):
+    global RUNNING
+    print(f'using cam {camid}')
+    vid = cv2.VideoCapture(camid)
+    while RUNNING:
+        _ret, frame = vid.read()
+        title = f'cam {camid}'
+        cv2.imshow(title, frame)
+        if (cv2.waitKey(1) & 0xFF) == ord('q'):
+            RUNNING = False
+    print('cleanup')
+    vid.release() 
+    cv2.destroyAllWindows()
+    print('display_cam finished')
 
 def list_ports():
     """
@@ -13,41 +40,33 @@ def list_ports():
         camera = cv2.VideoCapture(dev_port)
         if not camera.isOpened():
             is_working = False
-            print("Port %s is not working." %dev_port)
         else:
             is_reading, img = camera.read()
             w = camera.get(3)
             h = camera.get(4)
             if is_reading:
-                print("Port %s is working and reads images (%s x %s)" %(dev_port,h,w))
+                print(f'\t{dev_port}: reads images ({h} x {w})')
                 working_ports.append(dev_port)
             else:
-                print("Port %s for camera ( %s x %s) is present but does not reads." %(dev_port,h,w))
                 available_ports.append(dev_port)
         dev_port +=1
     return available_ports,working_ports
 
-print(list_ports())
-
-vid = cv2.VideoCapture(0, cv2.CAP_V4L2)
-#vid = cv2.VideoCapture(0) 
-
-while(True): 
-	
-	# Capture the video frame 
-	# by frame 
-	ret, frame = vid.read() 
-
-	# Display the resulting frame 
-	cv2.imshow('frame', frame) 
-	
-	# the 'q' button is set as the 
-	# quitting button you may use any 
-	# desired button of your choice 
-	if cv2.waitKey(1) & 0xFF == ord('q'): 
-		break
-
-# After the loop release the cap object 
-vid.release() 
-# Destroy all the windows 
-cv2.destroyAllWindows() 
+if __name__ == "__main__":
+    args = sys.argv
+    prog = args.pop(0)
+    camid = -1
+    if len(args) == 1:
+        try:
+            camid = int(args[0])
+        except ValueError:
+            camid = -1
+    if camid >= 0:
+        print('Ctrl-C to exit')
+        display_cam(camid)
+        exit(0)
+    else:
+        print(f'usage: {prog} <cammid>')
+        print('available cameras are:')
+        list_ports()
+        exit(-1)
