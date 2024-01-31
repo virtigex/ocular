@@ -1,5 +1,5 @@
-import asyncio
 import cv2
+import numpy
 import signal
 import sys
 
@@ -12,6 +12,14 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
+def test_frame(frame):
+    if not isinstance(frame, numpy.ndarray) or len(frame) < 1:
+        return False
+    first = frame[0]
+    if not isinstance(first, numpy.ndarray) or len(first) < 1:
+        return False
+    return True
+
 def display_cam(camid):
     global RUNNING
     print(f'using cam {camid}')
@@ -19,7 +27,7 @@ def display_cam(camid):
     while RUNNING:
         _ret, frame = vid.read()
         title = f'cam {camid}'
-        if len(frame) > 0 and len(frame[0]) > 0:
+        if test_frame(frame):
             cv2.imshow(title, frame)
         if (cv2.waitKey(1) & 0xFF) == ord('q'):
             RUNNING = False
