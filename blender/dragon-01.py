@@ -74,14 +74,14 @@ class Dragon:
         self.join_nodes('tail2', 'tail3')
         
         # wings
-        self.add_node('left_wing1', (-5, -1, 9))
-        self.add_node('left_wing2', (-9, 1, 14))
-        self.add_node('left_wing3', (-12, -4, 20))
-        self.add_node('left_wing4', (-15, -12, 15))
-        self.add_node('right_wing1', (5, -1, 9))
-        self.add_node('right_wing2', (9, 1, 14))
-        self.add_node('right_wing3', (12, -4, 20))
-        self.add_node('right_wing4', (15, -12, 15))
+        self.add_node('left_wing1', (-3.5, -0.43, 8.00))
+        self.add_node('left_wing2', (-5.90, 1.89, 13.25))
+        self.add_node('left_wing3', (-9.6, -2.33, 16.11))
+        self.add_node('left_wing4', (-13.46, -7.35, 14.25))
+        self.add_node('right_wing1', (3.5, -0.43, 8.00))
+        self.add_node('right_wing2', (5.90, 1.89, 13.25))
+        self.add_node('right_wing3', (9.6, -2.33, 16.11))
+        self.add_node('right_wing4', (13.46, -7.35, 14.25))
 
         self.join_nodes('mid_shoulder', 'left_wing1')
         self.join_nodes('left_wing1', 'left_wing2')
