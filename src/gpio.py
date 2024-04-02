@@ -1,4 +1,8 @@
-import RPi.GPIO as G
+try:
+    import RPi.GPIO as G
+except:
+    import Mock.GPIO as G
+    print('WARNING: using mock GPIO')
 import sys
 import time
 
