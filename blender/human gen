@@ -1,0 +1,50 @@
+import bpy
+
+def create_human_figure():
+    # Clear existing mesh objects
+    bpy.ops.object.select_all(action='DESELECT')
+    bpy.ops.object.select_by_type(type='MESH')
+    bpy.ops.object.delete()
+    
+    # Create the body (torso)
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.3, depth=1.2, location=(0, 0, 0.6))
+    torso = bpy.context.active_object
+    torso.name = "Torso"
+
+    # Create the head
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.2, location=(0, 0, 1.2))
+    head = bpy.context.active_object
+    head.name = "Head"
+
+    # Create the arms
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.1, depth=0.8, location=(-0.5, 0, 0.8))
+    left_arm = bpy.context.active_object
+    left_arm.name = "Left_Arm"
+    left_arm.rotation_euler[1] = 1.57  # Rotate to the side
+
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.1, depth=0.8, location=(0.5, 0, 0.8))
+    right_arm = bpy.context.active_object
+    right_arm.name = "Right_Arm"
+    right_arm.rotation_euler[1] = -1.57  # Rotate to the side
+
+
+      # Create the legs
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.15, depth=1, location=(-0.15, 0, -0.4))
+    left_leg = bpy.context.active_object
+    left_leg.name = "Left_Leg"
+
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.15, depth=1, location=(0.15, 0, -0.4))
+    right_leg = bpy.context.active_object
+    right_leg.name = "Right_Leg"
+
+    # Optional: Add a simple material
+    mat = bpy.data.materials.new(name="HumanMaterial")
+    mat.diffuse_color = (0.8, 0.7, 0.6, 1)  # Skin tone
+    for obj in [torso, head, left_arm, right_arm, left_leg, right_leg]:
+        if obj.data.materials:
+            obj.data.materials[0] = mat
+        else:
+            obj.data.materials.append(mat)
+
+# Run the function to create the human figure
+create_human_figure()

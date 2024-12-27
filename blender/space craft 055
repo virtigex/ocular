@@ -1,0 +1,87 @@
+import bpy
+import random
+
+# Clear existing mesh objects
+bpy.ops.object.select_all(action='SELECT')
+bpy.ops.object.delete(use_global=False)
+
+# Function to create the droid
+def create_droid():
+    # Create the body of the droid (a cylinder)
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.5, depth=2, location=(0, 0, 1))
+    body = bpy.context.object
+    body.name = "Droid Body"
+    
+    # Add material to the body
+    body_material = bpy.data.materials.new(name="DroidBodyMaterial")
+    body_material.use_nodes = True
+    bsdf = body_material.node_tree.nodes["Principled BSDF"]
+    bsdf.inputs['Base Color'].default_value = (0.2, 0.2, 0.2, 1)  # Dark gray (Black/Silver)
+    body.data.materials.append(body_material)
+
+    # Create the head of the droid (another smaller cylinder)
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.3, depth=1, location=(0, 0, 2.5))
+    head = bpy.context.object
+    head.name = "Droid Head"
+    
+    # Add material to the head
+    head_material = bpy.data.materials.new(name="DroidHeadMaterial")
+    head_material.use_nodes = True
+    bsdf = head_material.node_tree.nodes["Principled BSDF"]
+    bsdf.inputs['Base Color'].default_value = (0.8, 0.8, 0.8, 1)  # Silver
+    head.data.materials.append(head_material)
+
+    # Create the arms (simple cylinders, one on each side)
+    for x in [-0.8, 0.8]:
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.1, depth=1.5, location=(x, 0, 1.5))
+        arm = bpy.context.object
+        arm.name = f"Droid Arm {x}"
+        arm.rotation_euler = (0, 0, 1.5708)  # Rotate arms to be horizontal
+        
+        # Add material to the arms
+        arm.data.materials.append(body_material)
+
+# Function to create a cityscape background
+def create_cityscape():
+    # Create buildings using cubes
+    for i in range(10):
+        width = random.uniform(0.5, 1.5)
+        height = random.uniform(5, 15)
+        depth = random.uniform(0.5, 1.5)
+        
+        # Position buildings randomly in a grid-like pattern
+        x = random.uniform(-10, 10)
+        y = random.uniform(-10, 10)
+        
+        bpy.ops.mesh.primitive_cube_add(size=1, location=(x, y, height / 2))
+        building = bpy.context.object
+        building.scale = (width, depth, height)
+        
+        # Add material to the buildings (dark gray)
+        building_material = bpy.data.materials.new(name="BuildingMaterial")
+        building_material.use_nodes = True
+        bsdf = building_material.node_tree.nodes["Principled BSDF"]
+        bsdf.inputs['Base Color'].default_value = (0.1, 0.1, 0.1, 1)  # Dark Gray (Black)
+        building.data.materials.append(building_material)
+
+# Function to setup camera and lighting
+def setup_scene():
+    # Create the camera
+    bpy.ops.object.camera_add(location=(10, -10, 10))
+    camera = bpy.context.object
+    camera.rotation_euler = (1.1, 0, 0.8)
+    bpy.context.scene.camera = camera
+    
+    # Create a light source (sun)
+    bpy.ops.object.light_add(type='SUN', location=(5, -5, 10))
+    light = bpy.context.object
+    light.data.energy = 10
+
+# Main function to build the scene
+def create_scene():
+    create_droid()
+    create_cityscape()
+    setup_scene()
+
+# Run the script to generate the scene
+create_scene()

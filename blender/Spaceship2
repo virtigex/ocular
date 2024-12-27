@@ -1,0 +1,98 @@
+import bpy
+import bmesh
+import math
+
+def create_spaceship(location):
+    # Add a cube for the spaceship
+    bpy.ops.mesh.primitive_cube_add(size=1, location=location)
+    spaceship = bpy.context.object
+    spaceship.name = "Spaceship"
+
+    # Scale and modify to look more like a spaceship
+    spaceship.scale[0] = 1.0  # Width
+    spaceship.scale[1] = 0.5  # Height
+    spaceship.scale[2] = 3.0  # Length
+
+    # Add some details (e.g., a nose cone)
+    bpy.ops.mesh.primitive_cone_add(radius1=0.5, depth=1.0, location=(location[0], location[1], location[2] + 1.5))
+    nose_cone = bpy.context.object
+    nose_cone.name = "Nose Cone"
+
+    # Join the spaceship and nose cone
+    bpy.ops.object.select_all(action='DESELECT')
+    spaceship.select_set(True)
+    nose_cone.select_set(True)
+
+    bpy.context.view_layer.objects.active = spaceship
+    bpy.ops.object.join()
+
+def create_planet(location, size):
+
+
+    # Add a UV sphere for the planet
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=size, location=location)
+    planet = bpy.context.object
+    planet.name = f"Planet_{size}"
+
+    # Add a material to the planet
+    mat = bpy.data.materials.new(name="PlanetMaterial")
+    mat.use_nodes = True
+    planet.data.materials.append(mat)
+
+def create_star(location):
+    # Add a small UV sphere for the star
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.1, location=location)
+    star = bpy.context.object
+    star.name = "Star"
+
+    # Add a glowing material to the star
+    mat = bpy.data.materials.new(name="StarMaterial")
+    mat.use_nodes = True
+    emission = mat.node_tree.nodes.get('Principled BSDF')
+    if emission:
+        emission.inputs['Emission'].default_value = (1, 1, 0.8, 1)  # Yellow color
+        emission.inputs['Emission Strength'].default_value = 5
+    star.data.materials.append(mat)
+
+def create_laser(start_location, end_location):
+    # Create a line for the laser
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.05, depth=2, location=start_location)
+
+        laser = bpy.context.object
+    laser.name = "Laser"
+    
+    # Position the laser
+    direction = (end_location[0] - start_location[0], end_location[1] - start_location[1], end_location[2] - start_location[2])
+    laser.rotation_euler = direction_to_rotation(direction)
+    laser.location = ((start_location[0] + end_location[0]) / 2, (start_location[1] + end_location[1]) / 2, (start_location[2] + end_location[2]) / 2)
+
+    # Add an emission material to the laser
+    mat = bpy.data.materials.new(name="LaserMaterial")
+    mat.use_nodes = True
+    emission = mat.node_tree.nodes.get('Principled BSDF')
+    if emission:
+        emission.inputs['Emission'].default_value = (1, 0, 0, 1)  # Red color
+        emission.inputs['Emission Strength'].default_value = 10
+    laser.data.materials.append(mat)
+
+def direction_to_rotation(direction):
+    x, y, z = direction
+    pitch = math.atan2(-z, math.sqrt(x**2 + y**2))
+    yaw = math.atan2(y, x)
+    return (pitch, 0, yaw)
+
+# Clear existing objects
+bpy.ops.object.select_all(action='DESELECT')
+bpy.ops.object.select_by_type(type='MESH')
+bpy.ops.object.delete()
+
+# Create the scene
+create_spaceship(location=(0, 0, 0))
+create_planet(location=(5, 5, 0), size=1)
+create_planet(location=(-5, -5, 0), size=1.5)
+create_star(location=(10, 10, 2))
+create_star(location=(-10, -10, 2))
+create_laser(start_location=(0, 0, 1.5), end_location=(10, 10, 1.5))
+
+
+
